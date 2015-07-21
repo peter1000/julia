@@ -261,7 +261,8 @@ General Parallel Computing Support
 
    Waits and fetches a value from ``x`` depending on the type of ``x``. Does not remove the item fetched:
 
-   * ``RemoteRef``: Wait for and get the value of a remote reference.
+   * ``RemoteRef``: Wait for and get the value of a remote reference. If the remote value is an exception,
+                    throws a ``RemoteException`` which captures the remote exception and backtrace.
 
    * ``Channel`` : Wait for and get the first available item from the channel.
 
@@ -271,7 +272,8 @@ General Parallel Computing Support
 
 .. function:: remotecall_fetch(id, func, args...)
 
-   Perform ``fetch(remotecall(...))`` in one message.
+   Perform ``fetch(remotecall(...))`` in one message. Throws a ``CollectedException`` which wraps any exception caused by executing ``func`` on ``id``.
+   A ``CollectedException`` captures the remote exception, the pid of worker and the remote backtrace.
 
 .. function:: put!(RemoteRef, value)
 
@@ -351,7 +353,8 @@ General Parallel Computing Support
 .. function:: @sync
 
    Wait until all dynamically-enclosed uses of ``@async``, ``@spawn``,
-   ``@spawnat`` and ``@parallel`` are complete.
+   ``@spawnat`` and ``@parallel`` are complete. All exceptions thrown by
+   enclosed async operations are captured and thrown as a ``CompositeException``.
 
 .. function:: @parallel
 
@@ -373,6 +376,11 @@ General Parallel Computing Support
         @sync @parallel for var = range
             body
         end
+
+.. function:: @everywhere
+
+    Executes an expression as is on all processors. In the event of exceptions on
+    any of the workers, a `CompositeException` is thrown.
 
 Shared Arrays (Experimental, UNIX-only feature)
 -----------------------------------------------

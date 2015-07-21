@@ -138,6 +138,15 @@ Language changes
   * `global x` in a nested scope is now a syntax error if `x` is local
     to the enclosing scope ([#7264]/[#11985]).
 
+  * `remotecall_fetch` and `fetch` now rethrow any remote exception locally as a
+    `CollectedException`. Previously they would return the remote exception object.
+    The worker pid, remote exception and remote backtrace are available in the
+    thrown `CollectedException`.
+
+  * If any of the enclosed async operations in a `@sync` block throw exceptions, they
+    are now collected in a `CompositeException` and a `CompositeException` thrown.
+
+
 Command line option changes
 ---------------------------
 
