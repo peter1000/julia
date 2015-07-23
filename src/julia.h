@@ -92,6 +92,7 @@ typedef struct {
         jl_value_t *type; // 16-bytes aligned
         uintptr_t type_bits;
         struct {
+            uintptr_t gc_bits_low:2;
             uintptr_t gc_bits:2;
         };
     };
