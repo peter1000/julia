@@ -47,9 +47,9 @@ function //{Ra<:Rational,Rb<:Rational}(x::Complex{Ra}, y::Complex{Rb})
     complex(real(xy)//yy, imag(xy)//yy)
 end
 
-//(X::AbstractArray, y::Number) = X .// y
-.//(X::AbstractArray, y::Number) = reshape([ x // y for x in X ], size(X))
-.//(y::Number, X::AbstractArray) = reshape([ y // x for x in X ], size(X))
+//(X::AbstractArray, y::AbstractScalar) = X .// y
+.//(X::AbstractArray, y::AbstractScalar) = reshape([ x // y for x in X ], size(X))
+.//(y::AbstractScalar, X::AbstractArray) = reshape([ y // x for x in X ], size(X))
 
 function show(io::IO, x::Rational)
     show(io, num(x))

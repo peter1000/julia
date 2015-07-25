@@ -111,12 +111,12 @@ eltype{I}(::Type{Rest{I}}) = eltype(I)
 
 # Count -- infinite counting
 
-immutable Count{S<:Number}
+immutable Count{S<:AbstractScalar}
     start::S
     step::S
 end
-countfrom(start::Number, step::Number) = Count(promote(start, step)...)
-countfrom(start::Number)               = Count(start, one(start))
+countfrom(start::AbstractScalar, step::AbstractScalar) = Count(promote(start, step)...)
+countfrom(start::AbstractScalar)       = Count(start, one(start))
 countfrom()                            = Count(1, 1)
 
 eltype{S}(it::Count{S}) = S

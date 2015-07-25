@@ -634,20 +634,20 @@ convert{T}(::Type{LinSpace}, r::FloatRange{T}) =
 
 ## non-linear operations on ranges and fallbacks for non-real numbers ##
 
-.+(x::Number, r::Range) = [ x+y for y=r ]
-.+(r::Range, y::Number) = [ x+y for x=r ]
+.+(x::AbstractScalar, r::Range) = [ x+y for y=r ]
+.+(r::Range, y::AbstractScalar) = [ x+y for x=r ]
 
-.-(x::Number, r::Range) = [ x-y for y=r ]
-.-(r::Range, y::Number) = [ x-y for x=r ]
+.-(x::AbstractScalar, r::Range) = [ x-y for y=r ]
+.-(r::Range, y::AbstractScalar) = [ x-y for x=r ]
 
-.*(x::Number, r::Range) = [ x*y for y=r ]
-.*(r::Range, y::Number) = [ x*y for x=r ]
+.*(x::AbstractScalar, r::Range) = [ x*y for y=r ]
+.*(r::Range, y::AbstractScalar) = [ x*y for x=r ]
 
-./(x::Number, r::Range) = [ x/y for y=r ]
-./(r::Range, y::Number) = [ x/y for x=r ]
+./(x::AbstractScalar, r::Range) = [ x/y for y=r ]
+./(r::Range, y::AbstractScalar) = [ x/y for x=r ]
 
-.^(x::Number, r::Range) = [ x^y for y=r ]
-.^(r::Range, y::Number) = [ x^y for x=r ]
+.^(x::AbstractScalar, r::Range) = [ x^y for y=r ]
+.^(r::Range, y::AbstractScalar) = [ x^y for x=r ]
 
 ## concatenation ##
 

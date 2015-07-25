@@ -44,17 +44,17 @@ promote_array_type{S<:Integer, A<:Integer}(F, ::Type{S}, ::Type{A}) = A
 promote_array_type{S<:Integer}(F, ::Type{S}, ::Type{Bool}) = S
 
 # Handle operations that return different types
-./(x::Number, Y::AbstractArray) =
+./(x::AbstractScalar, Y::AbstractArray) =
     reshape([ x ./ y for y in Y ], size(Y))
-./(X::AbstractArray, y::Number) =
+./(X::AbstractArray, y::AbstractScalar) =
     reshape([ x ./ y for x in X ], size(X))
-.\(x::Number, Y::AbstractArray) =
+.\(x::AbstractScalar, Y::AbstractArray) =
     reshape([ x .\ y for y in Y ], size(Y))
-.\(X::AbstractArray, y::Number) =
+.\(X::AbstractArray, y::AbstractScalar) =
     reshape([ x .\ y for x in X ], size(X))
-.^(x::Number, Y::AbstractArray) =
+.^(x::AbstractScalar, Y::AbstractArray) =
     reshape([ x ^ y for y in Y ], size(Y))
-.^(X::AbstractArray, y::Number      ) =
+.^(X::AbstractArray, y::AbstractScalar      ) =
     reshape([ x ^ y for x in X ], size(X))
 
 for f in (:+, :-, :div, :mod, :&, :|, :$)
@@ -99,14 +99,14 @@ end
 for f in (:.+, :.-, :.*, :.%, :.<<, :.>>, :div, :mod, :rem, :&, :|, :$)
     F = GenericNFunc{f,2}()
     @eval begin
-        function ($f){T}(A::Number, B::AbstractArray{T})
+        function ($f){T}(A::AbstractScalar, B::AbstractArray{T})
             F = similar(B, promote_array_type($F,typeof(A),T))
             for i in eachindex(B)
                 @inbounds F[i] = ($f)(A, B[i])
             end
             return F
         end
-        function ($f){T}(A::AbstractArray{T}, B::Number)
+        function ($f){T}(A::AbstractArray{T}, B::AbstractScalar)
             F = similar(A, promote_array_type($F,typeof(B),T))
             for i in eachindex(A)
                 @inbounds F[i] = ($f)(A[i], B)
@@ -121,10 +121,10 @@ end
 (+)(x::Bool,A::AbstractArray{Bool}) = x .+ A
 (-)(A::AbstractArray{Bool},x::Bool) = A .- x
 (-)(x::Bool,A::AbstractArray{Bool}) = x .- A
-(+)(A::AbstractArray,x::Number) = A .+ x
-(+)(x::Number,A::AbstractArray) = x .+ A
-(-)(A::AbstractArray,x::Number) = A .- x
-(-)(x::Number,A::AbstractArray) = x .- A
+(+)(A::AbstractArray,x::AbstractScalar) = A .+ x
+(+)(x::AbstractScalar,A::AbstractArray) = x .+ A
+(-)(A::AbstractArray,x::AbstractScalar) = A .- x
+(-)(x::AbstractScalar,A::AbstractArray) = x .- A
 
 # functions that should give an Int result for Bool arrays
 for f in (:.+, :.-)

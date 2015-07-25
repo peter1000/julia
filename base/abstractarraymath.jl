@@ -51,12 +51,12 @@ imag{T<:Real}(x::AbstractArray{T}) = zero(x)
 
 ## Binary arithmetic operators ##
 
-*(A::Number, B::AbstractArray) = A .* B
-*(A::AbstractArray, B::Number) = A .* B
+*(A::AbstractScalar, B::AbstractArray) = A .* B
+*(A::AbstractArray, B::AbstractScalar) = A .* B
 
-/(A::AbstractArray, B::Number) = A ./ B
+/(A::AbstractArray, B::AbstractScalar) = A ./ B
 
-\(A::Number, B::AbstractArray) = B ./ A
+\(A::AbstractScalar, B::AbstractArray) = B ./ A
 
 # index A[:,:,...,i,:,:,...] where "i" is in dimension "d"
 # TODO: more optimized special cases

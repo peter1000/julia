@@ -858,9 +858,9 @@ end
 for f in (:.+, :.-)
     fq = Expr(:quote, f)
     for (arg1, arg2, T, fargs) in ((:(B::BitArray), :(x::Bool)    , Int                                   , :(b, x)),
-                                   (:(B::BitArray), :(x::Number)  , :(promote_array_type(GenericNFunc{$fq,2}(),typeof(x), Bool)), :(b, x)),
+                                   (:(B::BitArray), :(x::AbstractScalar)  , :(promote_array_type(GenericNFunc{$fq,2}(),typeof(x), Bool)), :(b, x)),
                                    (:(x::Bool)    , :(B::BitArray), Int                                   , :(x, b)),
-                                   (:(x::Number)  , :(B::BitArray), :(promote_array_type(GenericNFunc{$fq,2}(),typeof(x), Bool)), :(x, b)))
+                                   (:(x::AbstractScalar)  , :(B::BitArray), :(promote_array_type(GenericNFunc{$fq,2}(),typeof(x), Bool)), :(x, b)))
         @eval function ($f)($arg1, $arg2)
             r = Array($T, size(B))
             bi = start(B)
@@ -880,8 +880,8 @@ for f in (:/, :\)
         ($f)(A::BitArray, B::BitArray) = ($f)(bitunpack(A), bitunpack(B))
     end
 end
-(/)(B::BitArray, x::Number) = (/)(bitunpack(B), x)
-(/)(x::Number, B::BitArray) = (/)(x, bitunpack(B))
+(/)(B::BitArray, x::AbstractScalar) = (/)(bitunpack(B), x)
+(/)(x::AbstractScalar, B::BitArray) = (/)(x, bitunpack(B))
 
 function div(A::BitArray, B::BitArray)
     shp = promote_shape(size(A), size(B))
@@ -897,7 +897,7 @@ function div(x::Bool, B::BitArray)
     all(B) || throw(DivideError())
     return x ? trues(size(B)) : falses(size(B))
 end
-function div(x::Number, B::BitArray)
+function div(x::AbstractScalar, B::BitArray)
     all(B) || throw(DivideError())
     pt = promote_array_type(GenericNFunc{:div,2}(),typeof(x), Bool)
     y = div(x, true)
@@ -918,7 +918,7 @@ function mod(x::Bool, B::BitArray)
     all(B) || throw(DivideError())
     return falses(size(B))
 end
-function mod(x::Number, B::BitArray)
+function mod(x::AbstractScalar, B::BitArray)
     all(B) || throw(DivideError())
     pt = promote_array_type(GenericNFunc{:mod,2}(), typeof(x), Bool)
     y = mod(x, true)
@@ -928,7 +928,7 @@ end
 for f in (:div, :mod)
     F = GenericNFunc{f,2}()
     @eval begin
-        function ($f)(B::BitArray, x::Number)
+        function ($f)(B::BitArray, x::AbstractScalar)
             F = Array(promote_array_type($F, typeof(x), Bool), size(B))
             for i = 1:length(F)
                 F[i] = ($f)(B[i], x)
@@ -969,8 +969,8 @@ for f in (:&, :|, :$)
         end
         ($f)(A::DenseArray{Bool}, B::BitArray) = ($f)(bitpack(A), B)
         ($f)(B::BitArray, A::DenseArray{Bool}) = ($f)(B, bitpack(A))
-        ($f)(x::Number, B::BitArray) = ($f)(x, bitunpack(B))
-        ($f)(B::BitArray, x::Number) = ($f)(bitunpack(B), x)
+        ($f)(x::AbstractScalar, B::BitArray) = ($f)(x, bitunpack(B))
+        ($f)(B::BitArray, x::AbstractScalar) = ($f)(bitunpack(B), x)
     end
 end
 
@@ -980,7 +980,7 @@ end
 function (.^)(x::Bool, B::BitArray)
     x ? trues(size(B)) : ~B
 end
-function (.^)(x::Number, B::BitArray)
+function (.^)(x::AbstractScalar, B::BitArray)
     z = x ^ false
     u = x ^ true
     reshape([ B[i] ? u : z for i = 1:length(B) ], size(B))
@@ -994,7 +994,7 @@ function (.^)(B::BitArray, x::Integer)
         return copy(B)
     end
 end
-function (.^){T<:Number}(B::BitArray, x::T)
+function (.^){T<:AbstractScalar}(B::BitArray, x::T)
     if x == 0
         return ones(typeof(true ^ x), size(B))
     elseif T <: Real && x > 0
@@ -1043,8 +1043,8 @@ end
 
 (.*)(x::Bool, B::BitArray) = x & B
 (.*)(B::BitArray, x::Bool) = B & x
-(.*)(x::Number, B::BitArray) = x .* bitunpack(B)
-(.*)(B::BitArray, x::Number) = bitunpack(B) .* x
+(.*)(x::AbstractScalar, B::BitArray) = x .* bitunpack(B)
+(.*)(B::BitArray, x::AbstractScalar) = bitunpack(B) .* x
 
 ## promotion to complex ##
 

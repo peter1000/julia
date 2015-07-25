@@ -101,20 +101,20 @@ for (op,F) in ((:+,:(AddFun())), (:*,:(MulFun())), (:&,:(AndFun())), (:|,:(OrFun
     end
 end
 
-\(x::Number,y::Number) = y/x
+\(x::AbstractScalar,y::AbstractScalar) = y/x
 
 # .<op> defaults to <op>
-./(x::Number,y::Number) = x/y
-.\(x::Number,y::Number) = y./x
-.*(x::Number,y::Number) = x*y
-.^(x::Number,y::Number) = x^y
-.+(x::Number,y::Number) = x+y
-.-(x::Number,y::Number) = x-y
-.<<(x::Number,y::Number) = x<<y
-.>>(x::Number,y::Number) = x>>y
+./(x::AbstractScalar,y::AbstractScalar) = x/y
+.\(x::AbstractScalar,y::AbstractScalar) = y./x
+.*(x::AbstractScalar,y::AbstractScalar) = x*y
+.^(x::AbstractScalar,y::AbstractScalar) = x^y
+.+(x::AbstractScalar,y::AbstractScalar) = x+y
+.-(x::AbstractScalar,y::AbstractScalar) = x-y
+.<<(x::AbstractScalar,y::AbstractScalar) = x<<y
+.>>(x::AbstractScalar,y::AbstractScalar) = x>>y
 
-.==(x::Number,y::Number) = x == y
-.!=(x::Number,y::Number) = x != y
+.==(x::AbstractScalar,y::AbstractScalar) = x == y
+.!=(x::AbstractScalar,y::AbstractScalar) = x != y
 .<( x::Real,y::Real) = x < y
 .<=(x::Real,y::Real) = x <= y
 const .≤ = .<=

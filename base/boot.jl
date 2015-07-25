@@ -132,7 +132,7 @@ export
     Box, Function, IntrinsicFunction, LambdaStaticData, Method, MethodTable,
     Module, Symbol, Task, Array, WeakRef,
     # numeric types
-    Number, Real, Integer, Bool, Ref, Ptr,
+    AbstractScalar, Number, Real, Integer, Bool, Ref, Ptr,
     FloatingPoint, Float16, Float32, Float64,
     Signed, Int, Int8, Int16, Int32, Int64, Int128,
     Unsigned, UInt, UInt8, UInt16, UInt32, UInt64, UInt128,
@@ -178,7 +178,8 @@ export
 
 const (===) = is
 
-abstract Number
+abstract AbstractScalar
+abstract Number   <: AbstractScalar
 abstract Real     <: Number
 abstract FloatingPoint <: Real
 abstract Integer  <: Real
