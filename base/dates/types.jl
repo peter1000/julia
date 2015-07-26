@@ -1,6 +1,6 @@
 # This file is a part of Julia. License is MIT: http://julialang.org/license
 
-abstract AbstractTime
+abstract AbstractTime <: AbstractScalar
 
 abstract Period     <: AbstractTime
 abstract DatePeriod <: Period

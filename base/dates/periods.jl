@@ -43,34 +43,14 @@ for op in (:+,:-,:lcm,:gcd)
     @eval ($op){P<:Period}(x::P,y::P) = P(($op)(value(x),value(y)))
 end
 
-for op in (:/,:%,:div,:mod)
+for op in (:/,:%,:div,:mod,:./,:.%)
     @eval begin
         ($op){P<:Period}(x::P,y::P) = ($op)(value(x),value(y))
         ($op){P<:Period}(x::P,y::Real) = P(($op)(value(x),Int64(y)))
     end
 end
-/{P<:Period}(X::StridedArray{P}, y::P) = X ./ y
-%{P<:Period}(X::StridedArray{P}, y::P) = X .% y
 *{P<:Period}(x::P,y::Real) = P(value(x) * Int64(y))
 *(y::Real,x::Period) = x * y
-.*{P<:Period}(y::Real, X::StridedArray{P}) = X .* y
-for (op,Ty,Tz) in ((:.*,Real,:P),
-                   (:./,:P,Float64), (:./,Real,:P),
-                   (:.%,:P,Int64), (:.%,Integer,:P),
-                   (:div,:P,Int64), (:div,Integer,:P),
-                   (:mod,:P,Int64), (:mod,Integer,:P))
-    sop = string(op)
-    op_ = sop[1] == '.' ? symbol(sop[2:end]) : op
-    @eval begin
-        function ($op){P<:Period}(X::StridedArray{P},y::$Ty)
-            Z = similar(X, $Tz)
-            for i = 1:length(X)
-                @inbounds Z[i] = ($op_)(X[i],y)
-            end
-            return Z
-        end
-    end
-end
 
 # intfuncs
 Base.gcdx{T<:Period}(a::T,b::T) = ((g,x,y)=gcdx(value(a),value(b)); return T(g),x,y)
@@ -186,6 +166,9 @@ function Base.string(x::CompoundPeriod)
 end
 Base.show(io::IO,x::CompoundPeriod) = print(io,string(x))
 
+*(x::CompoundPeriod,y::Real) = CompoundPeriod(Period[p*Int64(y) for p in x.periods])
+*(y::Real,x::CompoundPeriod) = x * y
+
 # E.g. Year(1) + Day(1)
 (+)(x::Period,y::Period) = CompoundPeriod(Period[x,y])
 (+)(x::CompoundPeriod,y::Period) = CompoundPeriod(vcat(x.periods,y))
@@ -200,24 +183,6 @@ Base.show(io::IO,x::CompoundPeriod) = print(io,string(x))
 GeneralPeriod = Union{Period,CompoundPeriod}
 (+)(x::GeneralPeriod) = x
 (+){P<:GeneralPeriod}(x::StridedArray{P}) = x
-
-for op in (:.+, :.-)
-    op_ = symbol(string(op)[2:end])
-    @eval begin
-        function ($op){P<:GeneralPeriod}(X::StridedArray{P},y::GeneralPeriod)
-            Z = similar(X, CompoundPeriod)
-            for i = 1:length(X)
-                @inbounds Z[i] = ($op_)(X[i],y)
-            end
-            return Z
-        end
-        ($op){P<:GeneralPeriod}(x::GeneralPeriod,Y::StridedArray{P}) = ($op)(Y,x) |> ($op_)
-        ($op_){P<:GeneralPeriod}(x::GeneralPeriod,Y::StridedArray{P}) = ($op)(Y,x) |> ($op_)
-        ($op_){P<:GeneralPeriod}(Y::StridedArray{P},x::GeneralPeriod) = ($op)(Y,x)
-        ($op_){P<:GeneralPeriod, Q<:GeneralPeriod}(X::StridedArray{P}, Y::StridedArray{Q}) =
-            reshape(CompoundPeriod[($op_)(X[i],Y[i]) for i in eachindex(X, Y)], promote_shape(size(X),size(Y)))
-    end
-end
 
 (==)(x::CompoundPeriod, y::Period) = x == CompoundPeriod(y)
 (==)(y::Period, x::CompoundPeriod) = x == y

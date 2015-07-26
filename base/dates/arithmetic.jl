@@ -66,41 +66,28 @@ end
 (+)(y::Period,x::TimeType) = x + y
 (-)(y::Period,x::TimeType) = x - y
 
-for op in (:.+, :.-)
-    op_ = symbol(string(op)[2:end])
+# To avoid a switch to CompoundPeriod, we collect ranges
+(-){T<:TimeType}(x::OrdinalRange{T}, y::OrdinalRange{T}) = collect(x) - collect(y)
+(-){T<:TimeType}(x::Range{T}, y::Range{T}) = collect(x) - collect(y)
+
+# promotion rules
+
+import Base.GenericNFunc
+
+for op in (:+, :-, :.+, :.-)
+    F = GenericNFunc{op,2}
     @eval begin
-        # GeneralPeriod, AbstractArray{TimeType}
-        ($op){T<:TimeType}(x::AbstractArray{T}, y::GeneralPeriod) =
-            reshape(T[($op_)(i,y) for i in x], size(x))
-        ($op){T<:TimeType}(y::GeneralPeriod, x::AbstractArray{T}) = ($op)(x,y)
-        ($op_){T<:TimeType}(x::AbstractArray{T}, y::GeneralPeriod) = ($op)(x,y)
-        ($op_){T<:TimeType}(y::GeneralPeriod, x::AbstractArray{T}) = ($op)(x,y)
-
-	# TimeType, StridedArray{GeneralPeriod}
-        ($op){T<:TimeType,P<:GeneralPeriod}(x::StridedArray{P}, y::T) =
-            reshape(T[($op_)(i,y) for i in x], size(x))
-        ($op){P<:GeneralPeriod}(y::TimeType, x::StridedArray{P}) = ($op)(x,y)
-        ($op_){T<:TimeType,P<:GeneralPeriod}(x::StridedArray{P}, y::T) = ($op)(x,y)
-        ($op_){P<:GeneralPeriod}(y::TimeType, x::StridedArray{P}) = ($op)(x,y)
-
-        # AbstractArray{TimeType}, StridedArray{GeneralPeriod}
-        ($op_){T<:TimeType,P<:GeneralPeriod}(x::Range{T}, y::StridedArray{P}) = ($op_)(collect(x),y)
-        ($op_){T<:TimeType,P<:GeneralPeriod}(x::AbstractArray{T}, y::StridedArray{P}) =
-            reshape(TimeType[($op_)(x[i],y[i]) for i in eachindex(x, y)], promote_shape(size(x),size(y)))
-        ($op_){T<:TimeType,P<:GeneralPeriod}(y::StridedArray{P}, x::AbstractArray{T}) = ($op_)(x,y)
+        Base.promote_op{P<:Period}(::$F, ::Type{P}, ::Type{P}) = P
+        Base.promote_op{P1<:Period,P2<:Period}(::$F, ::Type{P1}, ::Type{P2}) = CompoundPeriod
+        Base.promote_op{D<:Date}(::$F, ::Type{D}, ::Type{D}) = Day
+        Base.promote_op{D<:DateTime}(::$F, ::Type{D}, ::Type{D}) = Millisecond
     end
 end
 
-# TimeType, AbstractArray{TimeType}
-(.-){T<:TimeType}(x::AbstractArray{T}, y::T) = reshape(Period[i - y for i in x], size(x))
-(.-){T<:TimeType}(y::T, x::AbstractArray{T}) = -(x .- y)
-(-){T<:TimeType}(x::AbstractArray{T}, y::T) = x .- y
-(-){T<:TimeType}(y::T, x::AbstractArray{T}) = -(x .- y)
-
-# AbstractArray{TimeType}, AbstractArray{TimeType}
-(-){T<:TimeType}(x::OrdinalRange{T}, y::OrdinalRange{T}) = collect(x) - collect(y)
-(-){T<:TimeType}(x::Range{T}, y::Range{T}) = collect(x) - collect(y)
-(-){T<:TimeType}(x::AbstractArray{T}, y::Range{T}) = y - collect(x)
-(-){T<:TimeType}(x::Range{T}, y::AbstractArray{T}) = collect(x) - y
-(-){T<:TimeType}(x::AbstractArray{T}, y::AbstractArray{T}) =
-    reshape(Period[x[i] - y[i] for i in eachindex(x, y)], promote_shape(size(x),size(y)))
+for op in (:/,:%,:div,:mod,:./,:.%)
+    F = GenericNFunc{op,2}
+    @eval begin
+        Base.promote_op{P<:Period}(::$F, ::Type{P}, ::Type{P}) = typeof($op(1,1))
+        Base.promote_op{P<:Period,R<:Real}(::$F, ::Type{P}, ::Type{R}) = P
+    end
+end
