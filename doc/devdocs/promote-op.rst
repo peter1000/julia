@@ -27,6 +27,7 @@ Fortunately, it's possible to provide such definitions via ``promote_op``::
 
     Base.promote_op{R,S}(::Base.GenericNFunc{:+,2}, ::Type{MeterUnits{R,1}}, ::Type{MeterUnits{S,1}}) = MeterUnits{promote_type(R,S),1}
     Base.promote_op{R,S}(::Base.GenericNFunc{:*,2}, ::Type{MeterUnits{R,1}}, ::Type{MeterUnits{S,1}}) = MeterUnits{promote_type(R,S),2}
+    Base.promote_op{R,S}(::Base.GenericNFunc{:.*,2}, ::Type{MeterUnits{R,1}}, ::Type{MeterUnits{S,1}}) = MeterUnits{promote_type(R,S),2}
 
 The first one defines the promotion rule for ``+``, and the second one
 for ``*``.  A ``GenericNFunc`` is a `functor <https://github.com/JuliaLang/julia/blob/master/base/functors.jl>`_;
