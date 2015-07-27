@@ -741,14 +741,14 @@ Specifying network topology (Experimental)
 
 Keyword argument ``topology`` to ``addprocs`` is used to specify how the workers must
 be connected to each other:
-    - ``all_to_all`` : is the default, where all workers are connected to each other.
+    - ``:all_to_all`` : is the default, where all workers are connected to each other.
 
-    - ``master_slave`` : only the driver process, i.e. pid 1 has connections to the workers.
+    - ``:master_slave`` : only the driver process, i.e. pid 1 has connections to the workers.
 
-    - ``custom`` : the ``launch`` method of the cluster manager specifes the connection topology.
+    - ``:custom`` : the ``launch`` method of the cluster manager specifes the connection topology.
       Fields ``ident`` and ``connect_idents`` in ``WorkerConfig`` are used to specify the  same.
       ``connect_idents`` is a list of ``ClusterManager`` provided identifiers to workers that worker
-      with ``ident`` must connect to.
+      with identified by ``ident`` must connect to.
 
 Currently sending a message between unconnected workers results in an error. This behaviour, as also the
 functionality and interface should be considered experimental in nature and may change in future releases.

@@ -79,7 +79,3 @@ for p1 in workers()
 end
 
 remove_workers_and_test()
-
-
-
-
