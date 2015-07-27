@@ -474,8 +474,8 @@ function resolve(
                 throw(PkgError("$pkg can't be installed because it has no versions that support ", VERSION, " of julia. " *
                    "You may need to update METADATA by running `Pkg.update()`"))
             else
-                throw(PkgError("$pkg's requirements can't be satisfied because of the following fixed packages: ",
-                   join(conflicts[pkg], ", ", " and ")))
+                sconflicts = join(conflicts[pkg], ", ", " and ")
+                throw(PkgError("$pkg's requirements can't be satisfied because of the following fixed packages: $sconflicts"))
             end
         end
     end
@@ -618,7 +618,7 @@ function register(pkg::AbstractString)
         throw(PkgError("$pkg: $err"))
     end
     !isempty(url) || throw(PkgError("$pkg: no URL configured"))
-    register(pkg, LibGit2.normalize_url(url))
+    register(pkg, GitHub.normalize_url(url))
 end
 
 function isrewritable(v::VersionNumber)
@@ -632,7 +632,7 @@ nextbump(v::VersionNumber) = isrewritable(v) ? v : nextpatch(v)
 function tag(pkg::AbstractString, ver::Union(Symbol,VersionNumber), force::Bool=false, commitish::AbstractString="HEAD")
     ispath(pkg,".git") || throw(PkgError("$pkg is not a git repo"))
     with(GitRepo,"METADATA") do repo
-        LibGit2.isdirty(repo, pkg) && throw(PkgError("$pkg is dirty – commit or stash changes to tag"))
+        LibGit2.isdirty(repo, pkg) && throw(PkgError("METADATA/$pkg is dirty – commit or stash changes to tag"))
     end
     with(GitRepo,pkg) do repo
         LibGit2.isdirty(repo) && throw(PkgError("$pkg is dirty – commit or stash changes to tag"))
