@@ -139,12 +139,12 @@ Language changes
     to the enclosing scope ([#7264]/[#11985]).
 
   * `remotecall_fetch` and `fetch` now rethrow any remote exception locally as a
-    `CollectedException`. Previously they would return the remote exception object.
-    The worker pid, remote exception and remote backtrace are available in the
-    thrown `CollectedException`.
+    `RemoteException`. Previously they would return the remote exception object.
+    The actual remote exception and backtrace are available as a `CapturedException`
+    in the thrown `RemoteException`.
 
   * If any of the enclosed async operations in a `@sync` block throw exceptions, they
-    are now collected in a `CompositeException` and a `CompositeException` thrown.
+    are now collected in a `CompositeException` and the `CompositeException` thrown.
 
 
 Command line option changes

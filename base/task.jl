@@ -160,7 +160,7 @@ function task_done_hook(t::Task)
                 throwto(active_repl_backend.backend_task, result)
             end
             if !suppress_excp_printing(t)
-                let bt = catch_backtrace()
+                let bt = t.backtrace
                     # run a new task to print the error for us
                     @schedule with_output_color(:red, STDERR) do io
                         print(io, "ERROR (unhandled task failure): ")
@@ -382,17 +382,17 @@ end
 
 
 ## dynamically-scoped waiting for multiple items
-sync_begin() = task_local_storage(:SPAWNS, (([], CompositeException()), get(task_local_storage(), :SPAWNS, ())))
+sync_begin() = task_local_storage(:SPAWNS, ([], get(task_local_storage(), :SPAWNS, ())))
 
 function sync_end()
     spawns = get(task_local_storage(), :SPAWNS, ())
     if is(spawns,())
         error("sync_end() without sync_begin()")
     end
-    refs = spawns[1][1]
+    refs = spawns[1]
     task_local_storage(:SPAWNS, spawns[2])
 
-    c_ex = spawns[1][2]
+    c_ex = CompositeException()
     for r in refs
         try
             wait(r)
@@ -425,7 +425,7 @@ end
 function sync_add(r)
     spawns = get(task_local_storage(), :SPAWNS, ())
     if !is(spawns,())
-        push!(spawns[1][1], r)
+        push!(spawns[1], r)
         if isa(r, Task)
             tls_r = get_task_tls(r)
             tls_r[:SUPPRESS_EXCEPTION_PRINTING] = true

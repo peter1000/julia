@@ -272,8 +272,8 @@ General Parallel Computing Support
 
 .. function:: remotecall_fetch(id, func, args...)
 
-   Perform ``fetch(remotecall(...))`` in one message. Throws a ``CollectedException`` which wraps any exception caused by executing ``func`` on ``id``.
-   A ``CollectedException`` captures the remote exception, the pid of worker and the remote backtrace.
+   Perform ``fetch(remotecall(...))`` in one message. Any remote exceptions are captured in a ``RemoteException``
+   and thrown.
 
 .. function:: put!(RemoteRef, value)
 
